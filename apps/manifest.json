@@ -23,6 +23,8 @@
     "open_in_tab": true
   },
   "permissions": [
+    "debugger",
+    
     "tabs",
     "scripting",
     "contextMenus",
@@ -35,7 +37,7 @@
     "http://*/*",
     "https://*/*",
     "file://*/*"
-    ],
+  ],
   "optional_permissions": [
     "downloads"
   ],
@@ -47,25 +49,25 @@
     }
   },
   "web_accessible_resources": [
-      {
-          "resources":[
-            "static/img/fe-16.png",
-            "static/img/fe-48.png",
-            "static/img/loading.gif",
-            "json-format/format-lib.js",
-            "json-format/json-abc.js",
-            "json-format/json-bigint.js",
-            "json-format/json-decode.js",
-            "static/vendor/jquery/jquery-3.3.1.min.js",
-            "static/vendor/evalCore.min.js",
-
-            "code-beautify/beautify.js",
-            "code-beautify/beautify-css.js",
-
-            "page-timing/timing.js"
-        ],
-        "matches": ["<all_urls>"]
-      }
+    {
+      "resources": [
+        "static/img/fe-16.png",
+        "static/img/fe-48.png",
+        "static/img/loading.gif",
+        "json-format/format-lib.js",
+        "json-format/json-abc.js",
+        "json-format/json-bigint.js",
+        "json-format/json-decode.js",
+        "static/vendor/jquery/jquery-3.3.1.min.js",
+        "static/vendor/evalCore.min.js",
+        "code-beautify/beautify.js",
+        "code-beautify/beautify-css.js",
+        "page-timing/timing.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
   ],
   "content_scripts": [
     {
@@ -83,10 +85,22 @@
       ],
       "run_at": "document_start",
       "all_frames": true
+    },
+    {
+      "matches": [
+        "http://es.ops.ctripcorp.com/*"
+      ],
+      "js": [
+        "static/vendor/jquery/jquery-3.3.1.min.js",
+        "static/vendor/moment.min.js",
+        "static/vendor/underscore-min.js",
+        "content-script/content-script.js"
+      ],
+      "run_at": "document_end"
     }
   ],
   "content_security_policy": {
-      "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'self'"
+    "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'self'"
   },
   "update_url": "https://clients2.google.com/service/update2/crx",
   "homepage_url": "https://www.baidufe.com/fehelper"
