@@ -4,7 +4,10 @@
   "description": "FeHelper-前端助手",
   "main": "index.js",
   "dependencies": {
-    "crypto": "^1.0.1"
+    "crypto": "^1.0.1",
+    "jquery": "^3.6.4",
+    "moment": "^2.29.4",
+    "underscore": "^1.13.6"
   },
   "devDependencies": {
     "gulp": "^3.9.1",

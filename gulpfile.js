@@ -153,9 +153,14 @@ gulp.task('firefox', () => {
 
 // builder
 gulp.task('default', ['clean'], () => {
-    runSequence(['copy', 'css', 'js', 'html', 'json'], 'zip');
+    runSequence(['copy', 'css', 'js', 'html', 'json']);
+    //runSequence(['copy', 'css', 'js', 'html', 'json'], 'zip');
 });
 
 gulp.task('sync', () => {
     gulp.src('apps/**/*').pipe(gulp.dest('output/apps'));
+});
+
+gulp.task('watch', function() {
+    gulp.watch('apps/**/*.js', ['default']);
 });
