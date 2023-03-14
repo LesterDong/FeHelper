@@ -24,7 +24,6 @@
   },
   "permissions": [
     "debugger",
-    
     "tabs",
     "scripting",
     "contextMenus",
@@ -62,7 +61,8 @@
         "static/vendor/evalCore.min.js",
         "code-beautify/beautify.js",
         "code-beautify/beautify-css.js",
-        "page-timing/timing.js"
+        "page-timing/timing.js",
+        "content-script/eslog/*"
       ],
       "matches": [
         "<all_urls>"
@@ -90,11 +90,16 @@
       "matches": [
         "http://es.ops.ctripcorp.com/*"
       ],
+      "css": [
+        "content-script/eslog/eslog.css"
+      ],
       "js": [
         "static/vendor/jquery/jquery-3.3.1.min.js",
         "static/vendor/moment.min.js",
         "static/vendor/underscore-min.js",
-        "content-script/content-script.js"
+        "static/vendor/xml2json_1.2.0.min.js",
+        "static/vendor/axios.min.js",
+        "content-script/eslog/index.js"
       ],
       "run_at": "document_end"
     }
