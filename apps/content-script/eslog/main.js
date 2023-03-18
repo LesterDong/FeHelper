@@ -14,14 +14,17 @@ export function main() {
   }
 }
 
-var callback = {
-  render: function ($table, catMsgId, serviceRequest, serviceResponse, appId) {
+const render = {
+  render: function ($table, data) {
     if ($table.hasClass('hasInjected')) {
       return;
     }
-    renderCatMsgIdRow($table, catMsgId);
-    renderServiceReqMsg($table, serviceRequest, appId);
-    renderServiceRespMsg($table, serviceResponse);
+    if (!data) {
+      return;
+    }
+    renderCatMsgIdRow($table, data);
+    renderServiceReqMsg($table, data);
+    renderServiceRespMsg($table, data.serviceResponse);
     $table.addClass('hasInjected');
   }
 };
@@ -32,6 +35,7 @@ function enhanceEsLog() {
     const $table = $(this);
     const $trs = $table.find('tbody tr.ng-scope');
     let appId;
+    let clientAppId;
     let guid;
     let timeStamp;
     $trs.each(function () {
@@ -39,7 +43,9 @@ function enhanceEsLog() {
       const $tds = $tr.find('td');
       const key = $($tds[0]).text();
       const value = $($tds[2]).text();
-      if (key === 'cat_client_appid') {
+      if (key === 'CallingAppId') {
+        clientAppId = value;
+      } else if (key === 'cat_client_appid') {
         appId = value;
       } else if (key === 'Guid') {
         guid = value;
@@ -47,32 +53,13 @@ function enhanceEsLog() {
         timeStamp = value;
       }
     });
-    new ServiceMsg($table, appId, guid, timeStamp)
-      .getLog(callback);
+    new ServiceMsg($table, appId, guid, timeStamp, clientAppId)
+      .getLog(render);
   });
 }
 
-function getServiceInfo(appId, callback) {
-  axios.get(constant.soaServicesUrl + appId,
-    {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-      }
-    })
-    .then(function (response) {
-      console.log(response.data);
-      if (!response.data.services || response.data.services.length === 0) {
-        return;
-      }
-      callback(response.data.services[0]);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-}
 
-function buildSoaTestStateData(appId, serviceInfo, requestBodyStr) {
+function buildSoaTestStateData(serviceInfo, data) {
 
   let serviceNode = {
     "serviceCode": serviceInfo.serviceCode,
@@ -87,39 +74,71 @@ function buildSoaTestStateData(appId, serviceInfo, requestBodyStr) {
       "value": "reset"
     }
   ];
-
+  let operationNode = {
+    "name": data.operation
+  }
   let stateObj = new Object();
-  stateObj.appId = appId;
+  stateObj.appId = data.appId;
   stateObj.service = serviceNode;
+  stateObj.operation = operationNode;
+  stateObj.clientAppId = data.clientAppId;
   stateObj.requestHeaders = requestHeaders;
-  stateObj.requestBody = requestBodyStr;
+  stateObj.requestBody = data.serviceRequest;
   stateObj.showAllInstances = true;
   let stateData = Base64.encode(LZString.compress(JSON.stringify(stateObj)));
-  console.log('stateData:' + stateData);
   return stateData;
 }
-function renderServiceReqMsg($table, requestData, appId) {
+
+var renderSoaTest = function (data, callback) {
+
+  const resJson = JSON.parse("{\n" +
+    "    \"responseStatus\":\n" +
+    "    {\n" +
+    "        \"errorCode\": \"success\",\n" +
+    "        \"status\": \"success\",\n" +
+    "        \"message\": \"\"\n" +
+    "    },\n" +
+    "    \"services\":\n" +
+    "    [\n" +
+    "        {\n" +
+    "            \"serviceCode\": \"20504\",\n" +
+    "            \"serviceName\": \"CRankingSearchService\",\n" +
+    "            \"serviceNamespace\": \"http://soa.ctrip.com/23648\",\n" +
+    "            \"serviceKey\": \"20504.crankingsearchservice\",\n" +
+    "            \"appId\": \"100028785\",\n" +
+    "            \"appIds\":\n" +
+    "            [\n" +
+    "                \"100028785\"\n" +
+    "            ]\n" +
+    "        }\n" +
+    "    ]\n" +
+    "}");
+  callback(data, resJson);
+
+  // fetch(constant.soaServicesUrl, {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json'
+  //   },
+  //   body: JSON.stringify({
+  //     appId: appId
+  //   })
+  // })
+  //   .then(response => response.json())
+  //   .then(resJson => {
+  //     console.log(resJson);
+  //     callback(appId, resJson, requestData);
+  //   })
+  //   .catch(error => console.error(error));
+}
+
+function renderServiceReqMsg($table, data) {
   const $tr = addRow($table, 'ServiceRequest');
   // 创建并返回 message td
   const messageTd = new MessageTd($tr.find('td:eq(2)'));
 
-  getServiceInfo(appId, function (appId, serviceInfo, requestData) {
-    // 跳转堡垒
-    // const stateData = '456C4oKGw6HgpKDimKDiuJDhhoDgs6jhjIHpoI7sloHrgoDgtIjMuOCpoOGOgOa4guWgjOa5ouqBk_SPpOCwoOO2rOS0rOiAjsKs7KCA64yT4pWO6oyA54mgy5nvhIDFi_q0gOSKtMW75ICH5oCM7K6l56Wgwrrti6vqgLLpk7bhjZvkvKDhqZzogY-kkKDOmumAh_SEjeSAkeuan_qBtuq0gemGieumpeiOu_C_teOIiOa0kOWauOaGsemmheq6rOaMveq2owrqroThioDhlpjjlJjgoIDivonilLkj6ICr66Sp4qaA0rnhoK-ilKniiIDjmqjjpK7poIDkgI3rpLzIvumgmOyUiTXprofrtJjjtIDWk_CkpeWji_SeveSUqei1gOK6ieKriO6Uq_i2jeGUs_Cgk_aUmOyeuu6mqeiQgj3fmuC_qOqJsuK4h_yygeyBoOGAguWQuOKPqdag57Gq4pCu4KWS6KaU64ec5JqK4Lyn6bKK5oCC7KuR5oKq4LS26L2O6YqJ5pOh4oG6642V6qmn5YOx7bGI5oCA3ZLoo43tgIDgo5nospDim5vql4jkhrLppKzvmYfjjpLMmeeFluGMvuaiq_S6sMuQ54Gk5bKi44y16Yit4ZqQ66CP5Ji06q6b6pygx5zphrrWuOWPg_6UqeeAguO5jeeavOiXjeWci_aqjui5l_O-i_SOgGXmoa3mpb-kl5LioILnjqDngYLDse2HneWCk_2DhuuRoeqmgOCgpc6A56OQ6aCQ5qKc5ImF4o6s66CG6JOY7LGn6o2p6IW06LC_6IiU7KWB5q2U6ICA';
-    const stateData = buildSoaTestStateData(appId, serviceInfo, requestData);
-    const soaTestUrl = constant.soaTestUrl + stateData;
-    let actionTd = new ActionTd($actionTd, {
-      iconTitle: '跳转堡垒测试',
-      iconClass: 'icon-share',
-      onClick: function () {
-        GotoUtil.getMethod(soaTestUrl);
-      }
-    });
-    actionTd.render();
-  });
-
   // 报文折叠
-  const foldAction = messageTd.enableFold(requestData);
+  const foldAction = messageTd.enableFold(data.serviceRequest);
   const formatAction = messageTd.enableFormat();
 
   // 按钮
@@ -134,6 +153,24 @@ function renderServiceReqMsg($table, requestData, appId) {
     }
   });
   actionTd.render();
+
+  renderSoaTest(data, function (data, serviceData) {
+    console.log(serviceData);
+
+    if (!serviceData.services || serviceData.services.length === 0) {
+      return;
+    }
+    const stateData = buildSoaTestStateData(serviceData.services[0], data);
+    const soaTestUrl = constant.soaTestUrl + stateData;
+    let actionTd = new ActionTd($actionTd, {
+      iconTitle: '跳转堡垒测试',
+      iconClass: 'icon-plane',
+      onClick: function () {
+        GotoUtil.getMethod(soaTestUrl);
+      }
+    });
+    actionTd.render();
+  });
 }
 
 function renderServiceRespMsg($table, respMsg) {
@@ -158,19 +195,48 @@ function renderServiceRespMsg($table, respMsg) {
   actionTd.render();
 }
 
-function renderCatMsgIdRow($table, catMsgId) {
+function buildClogUrl(data) {
+
+  const startTime = data.startTime.replace('%20', '_');
+  const endTime = data.endTime.replace('%20', '_')
+  const param = {
+    fromDate: startTime,
+    toDate: endTime,
+    app: data.appId,
+    changed: 'title,message,hostSearch,source,relevanceApps,eliminateSources,logType,selectedFrameworkProducts,chartEx,logEx,app,tags,fromDate,toDate,navigatorFromDate,navigatorToDate,visibility,ts',
+    navigatorFromDate: startTime,
+    navigatorToDate: endTime,
+    visibility: '0,1,0,1,1,1,-1,-1,-1,-1,-1,-1,-1',
+    tags: encodeURIComponent('cat-msg-id=' + data.catMsgId)
+  };
+  const pairs = Object.entries(param);
+  const subUrl = pairs.map(pair => pair.join('=')).join('~'); // format: "key1=value1~key2=value2~key3=value3
+  return constant.clogUrl + '?' + subUrl;
+}
+
+function renderCatMsgIdRow($table, data) {
   const $tr = addRow($table, 'CatMsgId');
   const $valueTd = $tr.find('td:eq(2)');
   const $actionTd = $tr.find('td:eq(1)');
-  $valueTd.text(catMsgId);
+  $valueTd.text(data.catMsgId);
 
   // 跳转Bat
-  const batUrl = constant.batUrl + catMsgId;
+  const batUrl = constant.batUrl + data.catMsgId;
   let actionTd = new ActionTd($actionTd, {
     iconTitle: '跳转Bat',
     iconClass: 'icon-share',
     onClick: function () {
       GotoUtil.getMethod(batUrl);
+    }
+  });
+  actionTd.render();
+  const clogUrl = buildClogUrl(data);
+  // 跳转clog
+  actionTd = new ActionTd($actionTd, {
+    iconTitle: '跳转Clog',
+    iconClass: 'icon-road',
+    onClick: function () {
+      GotoUtil.getMethod(clogUrl);
     }
   });
   actionTd.render();
