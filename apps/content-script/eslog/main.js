@@ -22,7 +22,6 @@ const render = {
     if (!data) {
       return;
     }
-    renderCatMsgIdRow($table, data);
     renderServiceReqMsg($table, data);
     renderServiceRespMsg($table, data.serviceResponse);
     $table.addClass('hasInjected');
@@ -36,7 +35,7 @@ function enhanceEsLog() {
     const $trs = $table.find('tbody tr.ng-scope');
     let appId;
     let clientAppId;
-    let guid;
+    let catMsgId;
     let timeStamp;
     $trs.each(function () {
       const $tr = $(this);
@@ -47,13 +46,13 @@ function enhanceEsLog() {
         clientAppId = value;
       } else if (key === 'cat_client_appid') {
         appId = value;
-      } else if (key === 'Guid') {
-        guid = value;
+      } else if (key === 'messageId') {
+        catMsgId = value;
       } else if (key === 'timestamp') {
         timeStamp = value;
       }
     });
-    new ServiceMsg($table, appId, guid, timeStamp, clientAppId)
+    new ServiceMsg($table, appId, catMsgId, timeStamp, clientAppId)
       .getLog(render);
   });
 }
@@ -120,7 +119,7 @@ function renderServiceReqMsg($table, data) {
   // 按钮
   const $actionTd = $tr.find('td:eq(1)');
 
-  const actionTd = new ActionTd($actionTd, {
+  let actionTd = new ActionTd($actionTd, {
     iconTitle: '格式化',
     iconClass: 'icon-code',
     onClick: function () {
@@ -130,9 +129,29 @@ function renderServiceReqMsg($table, data) {
   });
   actionTd.render();
 
-  renderSoaTest(data, function (data, serviceData) {
-    console.log(serviceData);
+  // 跳转Bat
+  const batUrl = constant.batUrl + data.catMsgId;
+  actionTd = new ActionTd($actionTd, {
+    iconTitle: '跳转Bat',
+    iconClass: 'icon-share',
+    onClick: function () {
+      GotoUtil.getMethod(batUrl);
+    }
+  });
+  actionTd.render();
 
+  const clogUrl = buildClogUrl(data);
+  // 跳转clog
+  actionTd = new ActionTd($actionTd, {
+    iconTitle: '跳转Clog',
+    iconClass: 'icon-road',
+    onClick: function () {
+      GotoUtil.getMethod(clogUrl);
+    }
+  });
+  actionTd.render();
+
+  renderSoaTest(data, function (data, serviceData) {
     if (!serviceData.services || serviceData.services.length === 0) {
       return;
     }
@@ -188,34 +207,6 @@ function buildClogUrl(data) {
   const pairs = Object.entries(param);
   const subUrl = pairs.map(pair => pair.join('=')).join('~'); // format: "key1=value1~key2=value2~key3=value3
   return constant.clogUrl + '?' + subUrl;
-}
-
-function renderCatMsgIdRow($table, data) {
-  const $tr = addRow($table, 'CatMsgId');
-  const $valueTd = $tr.find('td:eq(2)');
-  const $actionTd = $tr.find('td:eq(1)');
-  $valueTd.text(data.catMsgId);
-
-  // 跳转Bat
-  const batUrl = constant.batUrl + data.catMsgId;
-  let actionTd = new ActionTd($actionTd, {
-    iconTitle: '跳转Bat',
-    iconClass: 'icon-share',
-    onClick: function () {
-      GotoUtil.getMethod(batUrl);
-    }
-  });
-  actionTd.render();
-  const clogUrl = buildClogUrl(data);
-  // 跳转clog
-  actionTd = new ActionTd($actionTd, {
-    iconTitle: '跳转Clog',
-    iconClass: 'icon-road',
-    onClick: function () {
-      GotoUtil.getMethod(clogUrl);
-    }
-  });
-  actionTd.render();
 }
 
 function addRow($table, key) {

@@ -1,8 +1,8 @@
 import constant from "./constant.js";
 
 export default class ServiceMsg {
-    constructor($table, appId, guid, timeStamp, clientAppId) {
-        this.guid = guid;
+    constructor($table, appId, catMsgId, timeStamp, clientAppId) {
+        this.catMsgId = catMsgId;
         this.appId = appId;
         this.timeStamp = timeStamp;
         this.$table = $table;
@@ -14,27 +14,22 @@ export default class ServiceMsg {
             console.log("clog=>", logData);
             const logs = logData.logs;
             if (logs && logs.length > 1) {
-                let serviceResponse = logs[0].message;
-                let serviceRequest = logs[1].message;
+                let serviceRequest = logs.find(log => log.title === 'INFO-servicerequest');
+                let serviceResponse = logs.find(log => log.title === 'INFO-serviceresponse');
                 let appId = logs[1].appId;
-                let catMsgIdAttr = logs[1].attributes.filter(function (attr) {
-                    return attr.key === "cat-msg-id";
-                });
-                let operationAttr = logs[1].attributes.filter(function (attr) {
-                    return attr.key === "ServiceCode";
-                });
-                
-                let catMsgId = catMsgIdAttr && catMsgIdAttr.length > 0 ? catMsgIdAttr[0].value : '';
-                if (catMsgId === '') {
+                let catMsgIdAttr = logs[1].attributes.find(attr => attr.key === "cat-msg-id");
+                let operationAttr = logs[1].attributes.find(attr => attr.key === "ServiceCode");
+                let catMsgId = catMsgIdAttr ? catMsgIdAttr.value : '';
+                if (!catMsgIdAttr || !serviceRequest || !serviceResponse) {
                     return;
                 }
                 const result = {
                     "appId": appId,
                     "clientAppId": clientAppId,
-                    "catMsgId": catMsgId,
-                    "serviceRequest": serviceRequest,
-                    "serviceResponse": serviceResponse,
-                    "operation": operationAttr[0].value,
+                    "catMsgId": catMsgIdAttr.value,
+                    "serviceRequest": serviceRequest.message,
+                    "serviceResponse": serviceResponse.message,
+                    "operation": operationAttr.value,
                     "startTime": startTime,
                     "endTime": endTime
                 }
@@ -47,7 +42,7 @@ export default class ServiceMsg {
         let startTime = d.add(-30, 'seconds').format('YYYY-MM-DD%20HH:mm:ss');
         let endTime = d.add(60, 'seconds').format('YYYY-MM-DD%20HH:mm:ss');
         url = url + '?fromDate=' + startTime + '&toDate=' + endTime + '&logLevel=1'
-            + '&tagKey=Guid&tagValue=' + this.guid
+            + '&tagKey=cat-msg-id&tagValue=' + this.catMsgId
             + '&tagKey=id&tagValue=servicerequest,serviceresponse';
         console.log('log req url:' + url);
         let $table = this.$table;
