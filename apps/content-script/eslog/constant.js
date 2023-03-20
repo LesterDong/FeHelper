@@ -3,7 +3,7 @@ export default {
     clogUrl: 'http://logging.ctripcorp.com/#/',
     clogPullUrl: 'http://rest.logging.ctripcorp.com/data/logs/',
     soaTestUrl: 'http://canary.ctripcorp.com/#!/soa?state=',
-    soaServicesUrl: 'http://ws.soa.fx.ctripcorp.com/management/api/service/get-services',
+    soaServicesUrl: 'http://ws.soa.fx.ctripcorp.com/management/api/external/soa/getAppServices',
 	blueColor: '#33b5e5',
 	limeColor: '#01FF70',
     exVersion: chrome.runtime.getManifest && chrome.runtime.getManifest().version || "unKnown",

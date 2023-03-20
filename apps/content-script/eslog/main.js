@@ -64,8 +64,8 @@ function buildSoaTestStateData(serviceInfo, data) {
   let serviceNode = {
     "serviceCode": serviceInfo.serviceCode,
     "serviceName": serviceInfo.serviceName,
-    "serviceKey": serviceInfo.serviceKey,
-    "serviceType": serviceInfo.serviceType
+    "serviceKey": serviceInfo.serviceId,
+    "serviceType": serviceInfo.type
   };
   let requestHeaders = [
     {
@@ -91,45 +91,21 @@ function buildSoaTestStateData(serviceInfo, data) {
 
 var renderSoaTest = function (data, callback) {
 
-  const resJson = JSON.parse("{\n" +
-    "    \"responseStatus\":\n" +
-    "    {\n" +
-    "        \"errorCode\": \"success\",\n" +
-    "        \"status\": \"success\",\n" +
-    "        \"message\": \"\"\n" +
-    "    },\n" +
-    "    \"services\":\n" +
-    "    [\n" +
-    "        {\n" +
-    "            \"serviceCode\": \"20504\",\n" +
-    "            \"serviceName\": \"CRankingSearchService\",\n" +
-    "            \"serviceNamespace\": \"http://soa.ctrip.com/23648\",\n" +
-    "            \"serviceKey\": \"20504.crankingsearchservice\",\n" +
-    "            \"appId\": \"100028785\",\n" +
-    "            \"appIds\":\n" +
-    "            [\n" +
-    "                \"100028785\"\n" +
-    "            ]\n" +
-    "        }\n" +
-    "    ]\n" +
-    "}");
-  callback(data, resJson);
-
-  // fetch(constant.soaServicesUrl, {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json'
-  //   },
-  //   body: JSON.stringify({
-  //     appId: appId
-  //   })
-  // })
-  //   .then(response => response.json())
-  //   .then(resJson => {
-  //     console.log(resJson);
-  //     callback(appId, resJson, requestData);
-  //   })
-  //   .catch(error => console.error(error));
+  fetch(constant.soaServicesUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      appId: data.appId
+    })
+  })
+    .then(response => response.json())
+    .then(resJson => {
+      console.log(resJson);
+      callback(data, resJson);
+    })
+    .catch(error => console.error(error));
 }
 
 function renderServiceReqMsg($table, data) {
