@@ -96,8 +96,8 @@ gulp.task('zip', () => {
     fs.writeFileSync(pathOfMF, JSON.stringify(manifest));
 
     // ============压缩打包================================================
-    shell.exec('cd output/ && rm -rf pgc-tools.zip && zip -r pgc-tools.zip apps/ > /dev/null && cd ../');
-    let size = fs.statSync('output/pgc-tools.zip').size;
+    shell.exec('cd output/ && rm -rf awesome-tools.zip && zip -r awesome-tools.zip apps/ > /dev/null && cd ../');
+    let size = fs.statSync('output/awesome-tools.zip').size;
     size = pretty(size);
 
 

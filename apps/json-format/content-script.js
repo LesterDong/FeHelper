@@ -92,7 +92,7 @@ window.JsonAutoFormat = (() => {
         return [
             '<div id="jfToolbar" class="x-toolbar" style="display:none">' +
             '    <a href="#" target="_blank" class="x-a-title">' +
-            '        <img src="' + chrome.runtime.getURL('static/img/fe-16.png') + '"/> PGC-Tools</a>' +
+            '        <img src="' + chrome.runtime.getURL('static/img/logo-16.png') + '"/> Awesome-Tools</a>' +
             '    <span class="x-b-title"></span>' +
             '    <span class="x-sort">' +
             '        <span class="x-split">|</span>' +

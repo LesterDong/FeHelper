@@ -38,7 +38,7 @@ let BgPageInstance = (function () {
         }
 
         if (!options.icon) {
-            options.icon = "static/img/fe-48.png";
+            options.icon = "static/img/logo-48.png";
         }
         if (!options.title) {
             options.title = "温馨提示";

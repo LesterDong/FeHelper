@@ -9,7 +9,7 @@
     </head>
     <body class="fe-whole-page">
         <div id="pageContainer">
-            <div class="fe-function-title">PGC-Tools<span>({{manifest.version}})</span></div>
+            <div class="fe-function-title">Awesome-Tools<span>({{manifest.version}})</span></div>
             <ul class="fe-function-list">
                 <li v-for="tool in Object.keys(fhTools)" :class="'-x-' + tool" @click="runHelper(tool)">
                     <b>{{ fhTools[tool].icon || fhTools[tool].menuConfig[0].icon}}</b>{{fhTools[tool].name}}

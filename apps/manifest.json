@@ -1,17 +1,17 @@
 {
-  "name": "PGC-Tools",
-  "short_name": "PGC-Tools",
+  "name": "Awesome-Tools",
+  "short_name": "Awesome-Tools",
   "version": "1.0",
   "manifest_version": 3,
   "description": "for awesome tools...",
   "icons": {
-    "16": "static/img/fe-16.png",
-    "48": "static/img/fe-48.png",
-    "128": "static/img/fe-128.png"
+    "16": "static/img/logo-16.png",
+    "48": "static/img/logo-48.png",
+    "128": "static/img/logo-128.png"
   },
   "action": {
-    "default_icon": "static/img/fe-16.png",
-    "default_title": "PGC-Tools",
+    "default_icon": "static/img/logo-16.png",
+    "default_title": "Awesome-Tools",
     "default_popup": "popup/index.html"
   },
   "background": {
@@ -46,8 +46,8 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "static/img/fe-16.png",
-        "static/img/fe-48.png",
+        "static/img/logo-16.png",
+        "static/img/logo-48.png",
         "static/img/loading.gif",
         "json-format/format-lib.js",
         "json-format/json-abc.js",

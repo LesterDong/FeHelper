@@ -1,7 +1,7 @@
 {
-  "name": "PGC-Tools",
+  "name": "Awesome-Tools",
   "version": "1.0.0",
-  "description": "PGC-Tools",
+  "description": "Awesome-Tools",
   "main": "index.js",
   "dependencies": {
     "crypto": "^1.0.1",
