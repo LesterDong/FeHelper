@@ -1,6 +1,5 @@
 /**
- * FeHelper Chrome Extension Builder By Gulp
- * @author zhaoxianlie
+ * Chrome Extension Builder By Gulp
  */
 
 let gulp = require('gulp');
@@ -97,64 +96,19 @@ gulp.task('zip', () => {
     fs.writeFileSync(pathOfMF, JSON.stringify(manifest));
 
     // ============压缩打包================================================
-    shell.exec('cd output/ && rm -rf fehelper.zip && zip -r fehelper.zip apps/ > /dev/null && cd ../');
-    let size = fs.statSync('output/fehelper.zip').size;
+    shell.exec('cd output/ && rm -rf pgc-tools.zip && zip -r pgc-tools.zip apps/ > /dev/null && cd ../');
+    let size = fs.statSync('output/pgc-tools.zip').size;
     size = pretty(size);
 
 
     console.log('\n\n================================================================================');
     console.log('    当前版本：', manifest.version, '\t文件大小:', size);
-    console.log('    去Chrome商店发布吧：https://chrome.google.com/webstore/devconsole');
-    console.log('================================================================================\n\n');
-
-});
-
-// 打包Firefox安装包
-gulp.task('firefox', () => {
-    shell.exec('rm -rf output-firefox && cp -r output output-firefox && rm -rf output-firefox/fehelper.zip');
-
-    // 清理掉firefox里不支持的tools
-    let rmTools = ['page-capture', 'color-picker', 'ajax-debugger', 'wpo', 'code-standards', 'ruler', 'remove-bg'];
-    shell.cd('output-firefox/apps');
-    shell.find('./').forEach(f => {
-        if (rmTools.includes(f)) {
-            shell.rm('-rf', f);
-            console.log('已删除不支持的工具：', f);
-        }
-    });
-    shell.cd('../../');
-
-    // 更新firefox所需的配置文件
-    let pathOfMF = './output-firefox/apps/manifest.json';
-    let manifest = require(pathOfMF);
-    manifest.description = 'FE助手：JSON工具、代码美化、代码压缩、二维码工具、网页定制工具、便签笔记，等等';
-    delete manifest.update_url;
-    manifest.applications = {
-        "gecko": {
-            "id": "fehelper@baidufe.com",
-            "strict_min_version": "57.0"
-        }
-    };
-    manifest.version = manifest.version.replace(/\./, '') + 'stable';
-    manifest.content_scripts.splice(1,2);
-    fs.writeFileSync(pathOfMF, JSON.stringify(manifest));
-
-    shell.exec('cd output-firefox/apps && zip -r ../fehelper.xpi ./ > /dev/null && cd ../../');
-    let size = fs.statSync('output-firefox/fehelper.xpi').size;
-    size = pretty(size);
-
-    console.log('\n\nfehelper.xpi 已打包完成！');
-
-    console.log('\n\n================================================================================');
-    console.log('    当前版本：', manifest.version, '\t文件大小:', size);
-    console.log('    去Chrome商店发布吧：https://addons.mozilla.org/zh-CN/developers/addon/web%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B-fehelper/versions');
-    console.log('================================================================================\n\n');
 });
 
 // builder
 gulp.task('default', ['clean'], () => {
-    runSequence(['copy', 'css', 'js', 'html', 'json']);
-    //runSequence(['copy', 'css', 'js', 'html', 'json'], 'zip');
+    // runSequence(['copy', 'css', 'js', 'html', 'json']);
+    runSequence(['copy', 'css', 'js', 'html', 'json'], 'zip');
 });
 
 gulp.task('sync', () => {

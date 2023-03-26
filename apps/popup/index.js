@@ -1,5 +1,5 @@
 /**
- * FeHelper Popup Menu
+ * Popup Menu
  */
 import MSG_TYPE from '../static/js/common.js';
 import toolMap from '../background/tools.js'

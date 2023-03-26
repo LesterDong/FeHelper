@@ -1,6 +1,5 @@
 /**
  * JSON排序处理
- * @author zhaoxianlie
  */
 window.JsonABC = (function () {
 

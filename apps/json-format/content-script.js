@@ -1,6 +1,5 @@
 /**
- * Json Page Automatic Format Via FeHelper
- * @author zhaoxianlie
+ * Json Page Automatic Format
  */
 
 window.JsonAutoFormat = (() => {
@@ -92,8 +91,8 @@ window.JsonAutoFormat = (() => {
     let _getHtmlFragment = () => {
         return [
             '<div id="jfToolbar" class="x-toolbar" style="display:none">' +
-            '    <a href="https://www.baidufe.com/fehelper/feedback.html" target="_blank" class="x-a-title">' +
-            '        <img src="' + chrome.runtime.getURL('static/img/fe-16.png') + '" alt="fehelper"/> FeHelper</a>' +
+            '    <a href="#" target="_blank" class="x-a-title">' +
+            '        <img src="' + chrome.runtime.getURL('static/img/fe-16.png') + '"/> PGC-Tools</a>' +
             '    <span class="x-b-title"></span>' +
             '    <span class="x-sort">' +
             '        <span class="x-split">|</span>' +
@@ -585,7 +584,7 @@ window.JsonAutoFormat = (() => {
             if (formatOptions['MAX_JSON_KEYS_NUMBER']) {
                 let keysCount = _getAllKeysCount(jsonObj);
                 if (keysCount > formatOptions['MAX_JSON_KEYS_NUMBER']) {
-                    let msg = '当前JSON共 <b style="color:red">' + keysCount + '</b> 个Key，大于预设值' + formatOptions['MAX_JSON_KEYS_NUMBER'] + '，已取消自动格式化；可到FeHelper设置页调整此配置！';
+                    let msg = '当前JSON共 <b style="color:red">' + keysCount + '</b> 个Key，大于预设值' + formatOptions['MAX_JSON_KEYS_NUMBER'] + '，已取消自动格式化';
                     return toast(msg);
                 }
             }

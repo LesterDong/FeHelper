@@ -1,12 +1,7 @@
 /**
- * FeHelper MSG_TYPE
+ * MSG_TYPE
  */
 const MSG_TYPE = {
-
-    // 正式版chrome extension id
-    STABLE_EXTENSION_ID:'pkgccpejnmalmdinmhkkfafefagiiiad',
-    // github 上的下载地址
-    DOWNLOAD_FROM_GITHUB:'https://github.com/zxlie/FeHelper/tree/master/apps/static/screenshot/crx',
 
     // 编码规范检测
     CODE_STANDARDS: "code_standards",

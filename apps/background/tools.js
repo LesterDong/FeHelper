@@ -99,18 +99,6 @@ let toolMap = {
             }
         ]
     },
-    "chatgpt":
-    {
-        "name": "ChatGPT工具",
-        "tips": "由OpenAI强力支撑的超智能对话工具，可以让它帮你写代码、查资料、做分析、甚至帮你画一幅画",
-        "menuConfig":
-        [
-            {
-                "icon": "㊙",
-                "text": "ChatGPT工具"
-            }
-        ]
-    },
     "timestamp":
     {
         "name": "时间(戳)转换",

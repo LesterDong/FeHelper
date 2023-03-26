@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html lang="zh-CN">
     <head>
-        <title>FeHelper弹出页面</title>
+        <title>弹出页面</title>
         <meta charset="utf-8">
 		<link rel="stylesheet" href="index.css" />
 		<script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
@@ -9,14 +9,14 @@
     </head>
     <body class="fe-whole-page">
         <div id="pageContainer">
-            <div class="fe-function-title">FeHelper<span>({{manifest.version}})</span></div>
+            <div class="fe-function-title">PGC-Tools<span>({{manifest.version}})</span></div>
             <ul class="fe-function-list">
                 <li v-for="tool in Object.keys(fhTools)" :class="'-x-' + tool" @click="runHelper(tool)">
                     <b>{{ fhTools[tool].icon || fhTools[tool].menuConfig[0].icon}}</b>{{fhTools[tool].name}}
                 </li>
             </ul>
             <div class="fe-feedback">
-                <a href="https://github.com/zxlie/FeHelper/issues" @click="openUrl($event)" target="_blank" tabindex="-1" class="x-fb">
+                <a href="#" @click="openUrl($event)" target="_blank" tabindex="-1" class="x-fb">
                     查看文档
                 </a>
             </div>

@@ -78,7 +78,7 @@ window.toast = function (content) {
 
 
 /**
- * FeHelper Json Format Lib，入口文件
+ * Json Format Lib，入口文件
  * @example
  *  Formatter.format(jsonString)
  */
@@ -158,7 +158,7 @@ window.Formatter = (function () {
                 let aLink = $('#aLinkDownload');
                 if (!aLink[0]) {
                     aLink = $('<a id="aLinkDownload" target="_blank" title="保存到本地">下载JSON数据</a>').appendTo('body');
-                    aLink.attr('download', 'FeHelper-' + dt + '.json');
+                    aLink.attr('download', 'awesome-' + dt + '.json');
                     aLink.attr('href', URL.createObjectURL(blob));
                 }
                 aLink[0].click();
@@ -174,7 +174,7 @@ window.Formatter = (function () {
                             url: URL.createObjectURL(blob),
                             saveAs: true,
                             conflictAction: 'overwrite',
-                            filename: 'FeHelper-' + dt + '.json'
+                            filename: 'awesome-' + dt + '.json'
                         });
                     } else {
                         toast('必须接受授权，才能正常下载！');
@@ -268,7 +268,7 @@ window.Formatter = (function () {
 
             if (typeof chrome === 'undefined' || !chrome.permissions) {
                 // 下载JSON的简单形式
-                $(this).attr('download', 'FeHelper-' + dt + '.json').attr('href', URL.createObjectURL(blob));
+                $(this).attr('download', 'awesome-' + dt + '.json').attr('href', URL.createObjectURL(blob));
             } else {
                 // 请求权限
                 chrome.permissions.request({
@@ -279,7 +279,7 @@ window.Formatter = (function () {
                             url: URL.createObjectURL(blob),
                             saveAs: true,
                             conflictAction: 'overwrite',
-                            filename: 'FeHelper-' + dt + '.json'
+                            filename: 'awesome-' + dt + '.json'
                         });
                     } else {
                         toast('必须接受授权，才能正常下载！');

@@ -1,5 +1,5 @@
 /**
- * FeHelper QR Code Tools
+ * QR Code Tools
  */
 new Vue({
     el: '#pageContainer',

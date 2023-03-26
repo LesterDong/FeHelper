@@ -1,6 +1,5 @@
 /**
- * FeHelper Settings Tools
- * @author zhaoxianlie
+ * Settings Tools
  */
 
 import Awesome from '../background/awesome.js';

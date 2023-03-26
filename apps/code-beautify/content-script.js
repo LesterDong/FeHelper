@@ -104,7 +104,7 @@ window.codebeautifyContentScript = (() => {
         $(document.body).addClass('show-tipsbar');
 
         let tipsBar = $('<div id="fehelper_tips">' +
-            '<span class="desc">FeHelper检测到这可能是<i>' + fileType + '</i>代码，<span class="ask">是否进行美化处理？</span></span>' +
+            '<span class="desc">检测到这可能是<i>' + fileType + '</i>代码，<span class="ask">是否进行美化处理？</span></span>' +
             '<a class="encoding">有乱码？点击修正！</a>' +
             '<button class="yes">代码美化</button>' +
             '<button class="no">放弃！</button>' +
@@ -129,7 +129,7 @@ window.codebeautifyContentScript = (() => {
                     type: 'fh-dynamic-any-thing',
                     thing: 'close-beautify'
                 }, () => {
-                    alert('已关闭，如果要恢复，请在FeHelper「设置页」重新安装「代码美化工具」！');
+                    alert('已关闭，如果要恢复，请重新安装「代码美化工具」！');
                 });
             }
         });
