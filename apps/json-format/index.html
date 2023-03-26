@@ -13,6 +13,9 @@
                 <div class="panel-heading">
                     <h3 class="panel-title">
                         JSON格式化
+                        <span id="layoutBar">
+                            <button id="btnLeftRight" ref="btnLeftRight" class="selected" @click="changeLayout('left-right')">左右布局</button><button id="btnUpDown" ref="btnUpDown" @click="changeLayout('up-down')">上下布局</button>
+                        </span>
                     </h3>
                 </div>
             </div>
