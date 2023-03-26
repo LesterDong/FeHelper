@@ -1,9 +1,8 @@
 /**
  * FeHelper Popup Menu
  */
-
-import Awesome from '../background/awesome.js'
 import MSG_TYPE from '../static/js/common.js';
+import toolMap from '../background/tools.js'
 
 new Vue({
     el: '#pageContainer',
@@ -15,13 +14,7 @@ new Vue({
     created: function () {
         // 获取当前ctx的version
         this.manifest = chrome.runtime.getManifest();
-
-        Awesome.getInstalledTools().then(tools => {
-            this.fhTools = tools;
-        });
-
-        // 自动开关灯
-        DarkModeMgr.turnLightAuto();
+        this.fhTools = toolMap;
     },
 
     mounted: function () {

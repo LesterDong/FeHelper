@@ -138,5 +138,5 @@ svg:not(:root) {
 .fe-feedback .x-fb,
 .fe-feedback .x-settings
 {
-    float: right;
+    float: left;
 }

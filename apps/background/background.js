@@ -6,10 +6,9 @@
 
 import MSG_TYPE from '../static/js/common.js';
 import Settings from '../options/settings.js';
-import Menu from './menu.js';
 import Awesome from './awesome.js';
 import InjectTools from './inject-tools.js';
-import Monkey from './monkey.js';
+import toolMap from './tools.js';
 
 
 let BgPageInstance = (function () {
@@ -59,14 +58,14 @@ let BgPageInstance = (function () {
     };
 
     // 像页面注入css脚本
-    let _injectContentCss = function(tabId,toolName,isDevTool){
-        if(isDevTool){
+    let _injectContentCss = function (tabId, toolName, isDevTool) {
+        if (isDevTool) {
             Awesome.getContentScript(toolName, true)
                 .then(css => {
                     InjectTools.inject(tabId, { css })
                 });
-        }else{
-            InjectTools.inject(tabId, {files: [`${toolName}/content-script.css`]});
+        } else {
+            InjectTools.inject(tabId, { files: [`${toolName}/content-script.css`] });
         }
     };
 
@@ -75,31 +74,17 @@ let BgPageInstance = (function () {
     let _injectContentScripts = function (tabId) {
 
         // FH工具脚本注入
-        Awesome.getInstalledTools().then(tools => {
-
-            // 注入js
-            let jsTools = Object.keys(tools)
-                        .filter(tool => !tools[tool]._devTool
-                                && (tools[tool].contentScriptJs || tools[tool].contentScript));
-            let jsCodes = [];
-            jsTools.forEach((t, i) => {
-                let func = `window['${t.replace(/-/g, '')}ContentScript']`;
-                jsCodes.push(`(()=>{let func=${func};func&&func();})()`);
-            });
-            let jsFiles = jsTools.map(tool => `${tool}/content-script.js`);
-            InjectTools.inject(tabId, {files: jsFiles,js: jsCodes.join(';')});
+        // 注入js
+        let jsTools = Object.keys(toolMap)
+            .filter(tool => !tools[tool]._devTool
+                && (tools[tool].contentScriptJs || tools[tool].contentScript));
+        let jsCodes = [];
+        jsTools.forEach((t, i) => {
+            let func = `window['${t.replace(/-/g, '')}ContentScript']`;
+            jsCodes.push(`(()=>{let func=${func};func&&func();})()`);
         });
-
-        // 其他开发者自定义工具脚本注入======For FH DevTools
-        Awesome.getInstalledTools().then(tools => {
-            let list = Object.keys(tools).filter(tool => tools[tool]._devTool);
-
-            // 注入js脚本
-            list.filter(tool => (tools[tool].contentScriptJs || tools[tool].contentScript))
-                    .map(tool => Awesome.getContentScript(tool).then(js => {
-                        InjectTools.inject(tabId, { js });
-                    }));
-        });
+        let jsFiles = jsTools.map(tool => `${tool}/content-script.js`);
+        InjectTools.inject(tabId, { files: jsFiles, js: jsCodes.join(';') });
     };
 
     /**
@@ -121,11 +106,11 @@ let BgPageInstance = (function () {
         // 如果是noPage模式，则表名只完成content-script的工作，直接发送命令即可
         if (configs.noPage) {
             let toolFunc = tool.replace(/-/g, '');
-            chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+            chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
                 let found = tabs.some(tab => {
                     if (/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))) {
                         let codes = `window['${toolFunc}NoPage'] && window['${toolFunc}NoPage'](${JSON.stringify(tab)});`;
-                        InjectTools.inject(tab.id, {js: codes});
+                        InjectTools.inject(tab.id, { js: codes });
                         return true;
                     }
                     return false;
@@ -139,7 +124,7 @@ let BgPageInstance = (function () {
             return;
         }
 
-        chrome.tabs.query({currentWindow: true}, function (tabs) {
+        chrome.tabs.query({ currentWindow: true }, function (tabs) {
 
             activeTab = tabs.filter(tab => tab.active)[0];
 
@@ -165,7 +150,7 @@ let BgPageInstance = (function () {
                         active: true
                     }).then(tab => { FeJson[tab.id] = { content: withContent }; });
                 } else {
-                    chrome.tabs.update(tabId, {highlighted: true}).then(tab => {
+                    chrome.tabs.update(tabId, { highlighted: true }).then(tab => {
                         FeJson[tab.id] = { content: withContent };
                         chrome.tabs.reload(tabId);
                     });
@@ -176,115 +161,29 @@ let BgPageInstance = (function () {
         });
     };
 
-    /**
-     * 动态在icon处显示提示
-     * @param tips
-     * @private
-     */
-    let _animateTips = (tips) => {
-        setTimeout(() => {
-            chrome.action.setBadgeText({text: tips});
-            setTimeout(() => {
-                chrome.action.setBadgeText({text: ''});
-            }, 2000);
-        }, 3000);
-    };
-
-    /**
-     * 插件图标点击后的默认动作
-     * @param request
-     * @param sender
-     * @param callback
-     */
-    let browserActionClickedHandler = function (request, sender, callback) {
-        chrome.DynamicToolRunner({
-            tool: MSG_TYPE.JSON_FORMAT
-        });
-    };
-
-    /**
-     * 更新browser action的点击动作
-     * @param action install / upgrade / offload
-     * @param showTips 是否notify
-     * @param menuOnly 只管理Menu
-     * @private
-     */
-    let _updateBrowserAction = function (action, showTips, menuOnly) {
-        if (!menuOnly) {
-            // 如果有安装过工具，则显示Popup模式
-            Awesome.getInstalledTools().then(tools => {
-                if (Object.keys(tools).length > 1) {
-                    chrome.action.setPopup({ popup: '/popup/index.html' });
-                } else {
-                    // 删除popup page
-                    chrome.action.setPopup({ popup: '' });
-
-                    // 否则点击图标，直接打开页面
-                    if (!chrome.action.onClicked.hasListener(browserActionClickedHandler)) {
-                        chrome.action.onClicked.addListener(browserActionClickedHandler);
-                    }
-                }
-            });
-
-            if (action === 'offload') {
-                _animateTips('-1');
-            } else if(!!action) {
-                _animateTips('+1');
-            }
-        } else {
-            // 重绘菜单
-            Menu.rebuild();
-        }
-
-        if (showTips) {
-            let actionTxt = '';
-            switch (action) {
-                case 'install':
-                    actionTxt = '工具已「安装」成功，并已添加到弹出下拉列表，点击FeHelper图标可正常使用！';
-                    break;
-                case 'offload':
-                    actionTxt = '工具已「卸载」成功，并已从弹出下拉列表中移除！';
-                    break;
-                case 'menu-install':
-                    actionTxt = '已将此工具快捷方式加入到「右键菜单」中！';
-                    break;
-                case 'menu-offload':
-                    actionTxt = '已将此工具快捷方式从「右键菜单」中移除！';
-                    break;
-                default:
-                    actionTxt = '恭喜，操作成功！';
-            }
-            notifyText({
-                message: actionTxt,
-                autoClose: 2500
-            });
-        }
-    };
-
-
     // 捕获当前页面可视区域
     let _captureVisibleTab = function (callback) {
-        chrome.tabs.captureVisibleTab(null, {format: 'png', quality: 100}, uri => {
+        chrome.tabs.captureVisibleTab(null, { format: 'png', quality: 100 }, uri => {
             callback && callback(uri);
         });
     };
 
-    let _addScreenShotByPages = function(params,callback){
-        chrome.tabs.captureVisibleTab(null, {format: 'png', quality: 100}, uri => {
-            callback({ params,uri });
+    let _addScreenShotByPages = function (params, callback) {
+        chrome.tabs.captureVisibleTab(null, { format: 'png', quality: 100 }, uri => {
+            callback({ params, uri });
         });
     };
 
-    let _showScreenShotResult = function(data){
+    let _showScreenShotResult = function (data) {
         chrome.DynamicToolRunner({
             tool: 'screenshot',
             withContent: data
         });
     };
 
-    let _colorPickerCapture = function(params) {
-        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            chrome.tabs.captureVisibleTab(null, {format: 'png'}, function (dataUrl) {
+    let _colorPickerCapture = function (params) {
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            chrome.tabs.captureVisibleTab(null, { format: 'png' }, function (dataUrl) {
                 let js = `window.colorpickerNoPage(${JSON.stringify({
                     setPickerImage: true,
                     pickerImage: dataUrl
@@ -294,10 +193,10 @@ let BgPageInstance = (function () {
         });
     };
 
-    let _codeBeautify = function(params){
+    let _codeBeautify = function (params) {
         if (['javascript', 'css'].includes(params.fileType)) {
             Awesome.StorageMgr.get('JS_CSS_PAGE_BEAUTIFY').then(val => {
-                if(val !== '0') {
+                if (val !== '0') {
                     let js = `window._codebutifydetect_('${params.fileType}')`;
                     InjectTools.inject(params.tabId, { js });
                 }
@@ -310,23 +209,11 @@ let BgPageInstance = (function () {
      */
     let _addExtensionListener = function () {
 
-        _updateBrowserAction();
-
         chrome.runtime.onMessage.addListener(function (request, sender, callback) {
             // 如果发生了错误，就啥都别干了
             if (chrome.runtime.lastError) {
-                console.log('chrome.runtime.lastError:',chrome.runtime.lastError);
+                console.log('chrome.runtime.lastError:', chrome.runtime.lastError);
                 return true;
-            }
-
-            // 动态安装工具或者卸载工具，需要更新browserAction
-            if (request.type === MSG_TYPE.DYNAMIC_TOOL_INSTALL_OR_OFFLOAD) {
-                _updateBrowserAction(request.action, request.showTips, request.menuOnly);
-                callback && callback();
-            }
-            // 截屏
-            else if (request.type === MSG_TYPE.CAPTURE_VISIBLE_PAGE) {
-                _captureVisibleTab(callback);
             }
             // 打开动态工具页面
             else if (request.type === MSG_TYPE.OPEN_DYNAMIC_TOOL) {
@@ -342,7 +229,7 @@ let BgPageInstance = (function () {
             }
             // 任何事件，都可以通过这个钩子来完成
             else if (request.type === MSG_TYPE.DYNAMIC_ANY_THING) {
-                switch(request.thing){
+                switch (request.thing) {
                     case 'save-options':
                         notifyText({
                             message: '配置修改已生效，请继续使用!',
@@ -369,7 +256,7 @@ let BgPageInstance = (function () {
                     case 'toggle-jsonformat-options':
                         Awesome.StorageMgr.get('JSON_TOOL_BAR_ALWAYS_SHOW').then(result => {
                             let show = result !== false;
-                            Awesome.StorageMgr.set('JSON_TOOL_BAR_ALWAYS_SHOW',!show).then(() => {
+                            Awesome.StorageMgr.set('JSON_TOOL_BAR_ALWAYS_SHOW', !show).then(() => {
                                 callback && callback(!show);
                             });
                         });
@@ -378,7 +265,7 @@ let BgPageInstance = (function () {
                         _codeBeautify(request.params);
                         break;
                     case 'close-beautify':
-                        Awesome.StorageMgr.set('JS_CSS_PAGE_BEAUTIFY',0);
+                        Awesome.StorageMgr.set('JS_CSS_PAGE_BEAUTIFY', 0);
                         break;
                     case 'qr-decode':
                         chrome.DynamicToolRunner({
@@ -401,16 +288,13 @@ let BgPageInstance = (function () {
                         _colorPickerCapture(request.params);
                         break;
                     case 'add-screen-shot-by-pages':
-                        _addScreenShotByPages(request.params,callback);
+                        _addScreenShotByPages(request.params, callback);
                         return true;
                     case 'page-screenshot-done':
                         _showScreenShotResult(request.params);
                         break;
-                    case 'request-monkey-start':
-                        Monkey.start(request.params);
-                        break;
                     case 'inject-content-css':
-                        _injectContentCss(sender.tab.id,request.tool,!!request.devTool);
+                        _injectContentCss(sender.tab.id, request.tool, !!request.devTool);
                         break;
                 }
                 callback && callback(request.params);
@@ -427,69 +311,20 @@ let BgPageInstance = (function () {
 
             if (String(changeInfo.status).toLowerCase() === "complete") {
 
-                if(/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))){
+                if (/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))) {
                     InjectTools.inject(tabId, { js: `window.__FH_TAB_ID__=${tabId};` });
                     _injectContentScripts(tabId);
                 }
             }
         });
-
-        // 安装与更新
-        chrome.runtime.onInstalled.addListener(({reason, previousVersion}) => {
-            switch (reason) {
-                case 'install':
-                    chrome.runtime.openOptionsPage();
-                    break;
-                case 'update':
-                    _animateTips('+++1');
-                    if (previousVersion === '2019.12.2415') {
-                        notifyText({
-                            message: '历尽千辛万苦，FeHelper已升级到最新版本，可以到插件设置页去安装旧版功能了！',
-                            autoClose: 5000
-                        });
-                    }
-
-                    // 从V2020.02.1413版本开始，本地的数据存储大部分迁移至chrome.storage.local
-                    // 这里需要对老版本升级过来的情况进行强制数据迁移
-                    let getAbsNum = num => parseInt(num.split(/\./).map(n => n.padStart(4, '0')).join(''), 10);
-                    // let preVN = getAbsNum(previousVersion);
-                    // let minVN = getAbsNum('2020.02.1413');
-                    // if (preVN < minVN) {
-                    //     Awesome.makeStorageUnlimited();
-                    //     setTimeout(() => chrome.runtime.reload(), 1000 * 5);
-                    // }
-                    break;
-            }
-        });
-        // 卸载
-        chrome.runtime.setUninstallURL(chrome.runtime.getManifest().homepage_url);
     };
 
-    /**
-     * 检查插件更新
-     * @private
-     */
-    let _checkUpdate = function () {
-        setTimeout(() => {
-            chrome.runtime.requestUpdateCheck((status) => {
-                if (status === "update_available") {
-                    chrome.runtime.reload();
-                }
-            });
-        }, 1000 * 30);
-    };
 
     /**
      * 初始化
      */
     let _init = function () {
-        _checkUpdate();
         _addExtensionListener();
-        Menu.rebuild();
-        // 定期清理冗余的垃圾
-        setTimeout(() => {
-            Awesome.gcLocalFiles();
-        }, 1000 * 10);
     };
 
     return {

@@ -24,7 +24,6 @@ export let MSG_TYPE = {
 
     OPEN_DYNAMIC_TOOL: 'open-dynamic-tool',
     OPEN_PAGE: 'open-page',
-    DYNAMIC_TOOL_INSTALL_OR_OFFLOAD: 'dynamic-tool-install-or-offload',
 
     DYNAMIC_ANY_THING: 'fh-dynamic-any-thing'
 
