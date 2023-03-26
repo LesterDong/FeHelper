@@ -1,5 +1,5 @@
 /**
- * FeHelper 代码美化工具
+ * 代码美化工具
  */
 new Vue({
     el: '#pageContainer',

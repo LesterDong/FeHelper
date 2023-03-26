@@ -1,5 +1,5 @@
 /**
- * FeHelper 信息编解码
+ * 信息编解码
  */
 import EncodeUtils from './endecode-lib.js';
 
